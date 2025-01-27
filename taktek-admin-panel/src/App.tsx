@@ -35,7 +35,7 @@ export const useAuth = () => {
 function App() {
   const getInitialSignedIn = () => {
     const savedState = localStorage.getItem("signedIn");
-    return savedState === "true"; // Convertir a booleano
+    return savedState === "true";
   };
   const drawerWidth = 240;
   const [signedIn, setSignedIn] = useState(getInitialSignedIn);
