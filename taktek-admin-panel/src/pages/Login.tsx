@@ -1,40 +1,151 @@
-import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import "../App.css";
+import { Field, Form, Formik } from "formik";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../App";
 
 const Login = () => {
-  const { loginWithRedirect } = useAuth0();
+  const fieldStyle = {
+    width: "80%",
+    margin: "0px 10px",
+    fontSize: "20px",
+    padding: "10px 20px",
+    border: "1px solid gray",
+    borderRadius: "5px",
+    outline: "none",
+  };
+
+  const { signedIn, setSignedIn } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <Box
       sx={{
         display: "flex",
-        height: "100dvh",
-        backgroundColor: "#ffffff",
+        minHeight: "100vh",
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", margin: "auto" }}>
-        <Box sx={{ height: "90px", width: "350px", marginBottom: "50px" }}>
-          <img
-            src="https://firebasestorage.googleapis.com/v0/b/sds-main-29a46.firebasestorage.app/o/images%2Flogo.png?alt=media&token=6defccae-3a0c-4333-80a8-1c1ef024c917"
-            alt="logo"
-            height="100%"
-            width="100%"
-          />
-        </Box>
-        <Button
-          variant="contained"
-          onClick={() => {
-            loginWithRedirect();
-          }}
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          margin: "50px",
+          padding: "50px",
+          display: "flex",
+          justifyContent: "space-evenly",
+          alignItems: "center",
+        }}
+      >
+        <Box
           sx={{
-            backgroundColor: "#88c124",
-            color: "#000",
-            fontSize: "20px",
+            display: "flex",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            width: "100%",
+            flexWrap: "wrap",
           }}
         >
-          Get Started
-        </Button>
-      </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Box sx={{ textAlign: "center" }}>
+              <Typography variant="h2">Welcome Admin</Typography>
+            </Box>
+            <Box
+              component="img"
+              src="https://firebasestorage.googleapis.com/v0/b/sds-main-29a46.firebasestorage.app/o/images%2Flogo.png?alt=media&token=6defccae-3a0c-4333-80a8-1c1ef024c917"
+            />
+          </Box>
+          <Box>
+            <Paper
+              elevation={3}
+              sx={{
+                padding: "100px 10px",
+                backgroundColor: "#1d71bf",
+                width: "100%",
+                height: "fit-content",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Formik
+                initialValues={{
+                  email: "",
+                  password: "",
+                }}
+                enableReinitialize
+                onSubmit={(values) => {
+                  console.log(values);
+                  try {
+                    if (values.password === import.meta.env.VITE_ADMIN_PWD) {
+                      setSignedIn(true);
+                      if (signedIn) {
+                        navigate("/");
+                      }
+                    } else {
+                      console.log("error");
+                    }
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+              >
+                <Form
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "40px",
+                  }}
+                >
+                  <Field name="email" style={fieldStyle} placeholder="Email" />
+                  <Field
+                    name="password"
+                    style={fieldStyle}
+                    placeholder="Password"
+                    type="password"
+                  />
+                  {/* <Box sx={{ textAlign: "center", color: "#fff" }}>
+                    <Typography>Dont have an account?</Typography>
+                    <Typography>
+                      Sign Up
+                      <span>
+                        <span> </span>
+                        <Link
+                          to="/signup"
+                          style={{ color: "#88C124", textDecoration: "none" }}
+                        >
+                          Here
+                        </Link>
+                      </span>
+                    </Typography>
+                  </Box> */}
+                  <Button
+                    variant="contained"
+                    size="small"
+                    type="submit"
+                    sx={{
+                      backgroundColor: "#88C124",
+                      color: "#000000",
+                      padding: "5px 20px",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Log In
+                  </Button>
+                </Form>
+              </Formik>
+            </Paper>
+          </Box>
+        </Box>
+      </Paper>
     </Box>
   );
 };
