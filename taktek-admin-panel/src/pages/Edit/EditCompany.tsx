@@ -3,7 +3,7 @@ import ContentWraper from "../../components/ContentWraper";
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { useState } from "react";
 import EditCompanyForm from "../../components/EditCompanyForm";
-import Technicians from "../../Technicians";
+import Technicians from "../Technicians";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -47,7 +47,7 @@ const EditCompany = () => {
         <EditCompanyForm id={id} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        <Technicians id={id}/>
+        <Technicians id={id} />
       </CustomTabPanel>
     </ContentWraper>
   );

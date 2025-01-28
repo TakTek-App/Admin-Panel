@@ -17,6 +17,7 @@ import EditCompany from "./pages/Edit/EditCompany";
 import EditTechnician from "./pages/Edit/EditTechnician";
 import Login from "./pages/Login";
 import React, { useContext, useEffect, useState } from "react";
+import Categories from "./pages/Categories";
 
 interface AuthContextProps {
   signedIn: boolean;
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/services/create" element={<CreateService />} />
                 <Route path="/services/:id" element={<EditServices />} />
                 <Route path="/companies" element={<Companies />} />
+                <Route path="/categories" element={<Categories />} />
                 <Route
                   path="/companies/:companyId/technicians/:technicianId"
                   element={<EditTechnician />}

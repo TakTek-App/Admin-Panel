@@ -14,7 +14,14 @@ import {
 import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
-import { Business, Home, Logout, People } from "@mui/icons-material";
+import {
+  Business,
+  Category,
+  Home,
+  HomeRepairService,
+  Logout,
+  People,
+} from "@mui/icons-material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../App";
@@ -78,8 +85,13 @@ const PersistentDrawer = () => {
     { text: "Users", icon: <People />, onClick: () => navigate("/users") },
     {
       text: "Services",
-      icon: <People />,
+      icon: <HomeRepairService />,
       onClick: () => navigate("/services"),
+    },
+    {
+      text: "Categories",
+      icon: <Category />,
+      onClick: () => navigate("/categories"),
     },
     {
       text: "Companies",
