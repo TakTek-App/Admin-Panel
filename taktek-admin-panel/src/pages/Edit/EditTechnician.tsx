@@ -149,6 +149,7 @@ const EditTechnician = () => {
             <Button
               type="submit"
               variant="contained"
+              color="primary"
               size="large"
               sx={{ width: "600px", margin: "20px 10px" }}
             >
