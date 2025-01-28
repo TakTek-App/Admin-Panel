@@ -20,7 +20,6 @@ const Companies = () => {
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "Company Name", flex: 1 },
-    { field: "phone", headerName: "Phone", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "location", headerName: "Location", flex: 1 },
     { field: "amountDue", headerName: "Amount Due", flex: 1 },
@@ -51,7 +50,11 @@ const Companies = () => {
   }, []);
   return (
     <ContentWraper name="Companies" onBack={() => navigate(-1)}>
-      <DataGrid rows={rows} columns={columns} />
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        sortModel={[{ field: "name", sort: "asc" }]}
+      />
     </ContentWraper>
   );
 };

@@ -7,7 +7,7 @@ import { Flip, toast } from "react-toastify";
 
 interface Service {
   id?: number;
-  serviceName: string;
+  name: string;
   companies?: any[];
 }
 
@@ -16,7 +16,7 @@ const EditServices = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [service, setService] = useState<Service>({
-    serviceName: "",
+    name: "",
   });
 
   const succesNotify = () =>
@@ -28,7 +28,7 @@ const EditServices = () => {
     });
 
   const errorNotify = () =>
-    toast.error("Failed to update the service", {
+    toast.error("Failed to Update the Service", {
       autoClose: 2000,
       position: "bottom-right",
       theme: "colored",
@@ -57,12 +57,12 @@ const EditServices = () => {
 
   useEffect(() => {
     getServiceData();
-  });
+  }, []);
   return (
-    <ContentWraper name={service.serviceName} onBack={() => navigate(-1)}>
+    <ContentWraper name={service.name} onBack={() => navigate(-1)}>
       <Formik
         initialValues={{
-          serviceName: service.serviceName,
+          name: service.name,
         }}
         enableReinitialize
         onSubmit={async (values, { setSubmitting }) => {
@@ -70,7 +70,7 @@ const EditServices = () => {
           setSubmitting(true);
           setService(values);
           const data = await fetch(`http://localhost:3000/services/${id}`, {
-            method: "PUT",
+            method: "PATCH",
             body: JSON.stringify(values),
             headers: { "Content-Type": "application/json" },
           });
@@ -103,7 +103,7 @@ const EditServices = () => {
               alignItems: "center",
             }}
           >
-            <Field name="serviceName" style={fieldStyle} />
+            <Field name="name" style={fieldStyle} />
             <Button
               type="submit"
               variant="contained"

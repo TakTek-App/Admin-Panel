@@ -45,6 +45,7 @@ const Services = () => {
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", flex: 0.5 },
     { field: "name", headerName: "Service Name", flex: 1 },
+    { field: "categoryId", headerName: "Category", flex: 1 },
     {
       field: "actions",
       type: "actions",

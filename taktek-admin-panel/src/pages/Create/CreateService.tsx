@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ContentWraper from "../../components/ContentWraper";
 import { Field, Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+} from "@mui/material";
 import { Flip, toast } from "react-toastify";
+import { Category } from "@mui/icons-material";
+
+interface Categories {
+  id: number;
+  name: string;
+}
 
 const CreateService = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Categories[]>([]);
   const succesNotify = () =>
     toast.success("Service Created", {
       autoClose: 2000,
@@ -32,19 +48,36 @@ const CreateService = () => {
     borderRadius: "5px",
   };
 
+  const getCategories = async () => {
+    try {
+      const data = await fetch("http://localhost:3000/categories");
+      const response = await data.json();
+      setCategories(response);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
   return (
     <ContentWraper name="Create Service" onBack={() => navigate(-1)}>
       <Formik
         initialValues={{
-          serviceName: "",
+          name: "",
+          categoryId: "",
         }}
         enableReinitialize
         onSubmit={async (values, { setSubmitting }) => {
+          console.log(values);
           setLoading(true);
           setSubmitting(true);
           const data = await fetch(`http://localhost:3000/services`, {
             method: "POST",
-            body: JSON.stringify(values),
+            body: JSON.stringify({
+              ...values,
+              categoryId: Number(values.categoryId),
+            }),
             headers: { "Content-Type": "application/json" },
           });
           if (data.status === 200 || 201) {
@@ -67,28 +100,49 @@ const CreateService = () => {
             <CircularProgress sx={{ margin: "auto" }} />
           </Box>
         ) : (
-          <Form
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-            }}
-          >
-            <Field
-              name="serviceName"
-              style={fieldStyle}
-              placeholder="Service Name"
-            />
-            <Button
-              variant="contained"
-              type="submit"
-              size="large"
-              sx={{ width: "400px", margin: "20px" }}
+          ({ values, setFieldValue }) => (
+            <Form
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-evenly",
+                alignItems: "start",
+              }}
             >
-              Create
-            </Button>
-          </Form>
+              <Field
+                name="name"
+                style={fieldStyle}
+                placeholder="Service Name"
+              />
+
+              <Box sx={{ width: "500px" }}>
+                <FormControl fullWidth sx={{ margin: "20px 10px" }}>
+                  <InputLabel>Category</InputLabel>
+                  <Select
+                    value={values.categoryId}
+                    onChange={(e) => {
+                      console.log(e.target.value);
+                      setFieldValue("categoryId", e.target.value);
+                    }}
+                  >
+                    {categories?.map((category) => (
+                      <MenuItem key={category.id} value={category.id}>
+                        {category.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+              <Button
+                variant="contained"
+                type="submit"
+                size="large"
+                sx={{ width: "400px", margin: "20px" }}
+              >
+                Create
+              </Button>
+            </Form>
+          )
         )}
       </Formik>
     </ContentWraper>

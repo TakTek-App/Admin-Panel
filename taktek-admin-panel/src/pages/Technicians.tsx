@@ -18,9 +18,8 @@ const Technicians = ({ id }: { id: any }) => {
     { field: "firstName", headerName: "First Name", flex: 1 },
     { field: "lastName", headerName: "Last Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    { field: "phone", headerName: "Phone", flex: 1 },
     { field: "rating", headerName: "Rating", flex: 1 },
-    { field: "status", headerName: "Status", flex: 1 },
+    { field: "verified", headerName: "Status", flex: 1 },
     {
       field: "actions",
       type: "actions",
