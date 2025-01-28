@@ -33,14 +33,13 @@ export const useAuth = () => {
   return context;
 };
 
-function App() {
+function App({ toggleTheme }: { toggleTheme: () => void }) {
   const getInitialSignedIn = () => {
     const savedState = localStorage.getItem("signedIn");
     return savedState === "true";
   };
   const drawerWidth = 240;
   const [signedIn, setSignedIn] = useState(getInitialSignedIn);
-  console.log(signedIn);
 
   useEffect(() => {
     localStorage.setItem("signedIn", signedIn.toString());
@@ -52,7 +51,7 @@ function App() {
         {signedIn ? (
           <Box>
             <ToastContainer />
-            <PersistentDrawer />
+            <PersistentDrawer toggleTheme={toggleTheme} />
             <Box
               sx={{
                 width: `calc(100% - ${drawerWidth}px)`,

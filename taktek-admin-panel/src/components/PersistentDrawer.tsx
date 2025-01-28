@@ -10,6 +10,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  useTheme,
 } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -17,8 +18,10 @@ import { useState } from "react";
 import {
   Business,
   Category,
+  DarkMode,
   Home,
   HomeRepairService,
+  LightMode,
   Logout,
   People,
 } from "@mui/icons-material";
@@ -61,12 +64,14 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
   justifyContent: "flex-end",
+  margin: "2px 20px",
 }));
 
-const PersistentDrawer = () => {
+const PersistentDrawer = ({ toggleTheme }: { toggleTheme: () => void }) => {
   const { setSignedIn } = useAuth();
   const logout = () => {
     setSignedIn(false);
+    navigate("/");
   };
   const navigate = useNavigate();
   // const theme = useTheme();
@@ -75,6 +80,7 @@ const PersistentDrawer = () => {
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+  const theme = useTheme();
 
   // const handleDrawerClose = () => {
   //   setOpen(false);
@@ -102,6 +108,11 @@ const PersistentDrawer = () => {
       text: "Logout",
       icon: <Logout />,
       onClick: () => logout(),
+    },
+    {
+      text: theme.palette.mode === "dark" ? "Light Mode" : "Dark Mode",
+      icon: theme.palette.mode === "dark" ? <LightMode /> : <DarkMode />,
+      onClick: () => toggleTheme(),
     },
   ];
   return (
@@ -138,6 +149,11 @@ const PersistentDrawer = () => {
         }}
       >
         <DrawerHeader>
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/sds-main-29a46.firebasestorage.app/o/images%2Flogo.png?alt=media&token=6defccae-3a0c-4333-80a8-1c1ef024c917"
+            width="100%"
+            alt=""
+          />
           {/* <IconButton onClick={handleDrawerClose}>
             {theme.direction === "ltr" ? <ChevronLeft /> : <ChevronRight />}
           </IconButton> */}
