@@ -56,4 +56,19 @@ export class CompanyController {
   async login(@Body() loginCompanyDto: LoginCompanyDto) {
     return this.companyService.login(loginCompanyDto.email, loginCompanyDto.password);
   }
+
+  @Get(':id/technicians')
+  async getTechnicians(@Param('id') id: string) {
+    return this.companyService.getCompanyTechnicians(id);
+  }
+
+  @Get(':id/jobs')
+  async getJobs(@Param('id') id: string) {
+    return this.companyService.getCompanyJobs(id);
+  }
+
+  @Get(':id/calls')
+  async getCalls(@Param('id') id: string) {
+    return this.companyService.getCompanyCalls(id);
+  }
 }
