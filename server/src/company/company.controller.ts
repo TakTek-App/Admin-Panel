@@ -3,6 +3,7 @@ import { CompanyService } from './company.service';
 import { Company } from '@prisma/client';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { LoginCompanyDto } from './dto/login-company.dto';
 
 @Controller('companies')
 export class CompanyController {
@@ -49,5 +50,10 @@ export class CompanyController {
   ) {
     const numericServiceId = parseInt(serviceId, 10);
     return this.companyService.removeServiceFromCompany(companyId, numericServiceId);
+  }
+
+  @Post('login')
+  async login(@Body() loginCompanyDto: LoginCompanyDto) {
+    return this.companyService.login(loginCompanyDto.email, loginCompanyDto.password);
   }
 }

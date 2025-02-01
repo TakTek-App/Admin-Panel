@@ -14,4 +14,8 @@ export class CreateUserReviewDto {
   @IsInt()
   @IsNotEmpty()
   userId: number;
+
+  @IsInt()
+  @IsNotEmpty()
+  jobId: number;
 }

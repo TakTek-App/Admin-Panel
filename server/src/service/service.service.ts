@@ -29,6 +29,19 @@ export class ServiceService {
     return service;
   }
 
+  async findByCategoryId(categoryId: number): Promise<Service[]> {
+    const services = await this.prisma.service.findMany({
+      where: {
+        categoryId: categoryId, // Replace 'categoryId' with the actual field name in your schema
+      },
+      include: { companies: true },
+    });
+    if (!services || services.length === 0) {
+      throw new NotFoundException(`No services found for category ID ${categoryId}`);
+    }
+    return services;
+  }
+
   async update(id: number, updateServiceDto: UpdateServiceDto): Promise<Service> {
     await this.findOne(id); // Check if the service exists before updating
     return this.prisma.service.update({

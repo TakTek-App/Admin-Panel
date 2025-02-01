@@ -11,16 +11,20 @@ export class JobService {
   async create(createJobDto: CreateJobDto) {
     return this.prisma.job.create({
       data: createJobDto,
+      include: { user: true, technician: true, service: true }
     });
   }
 
   async findAll() {
-    return this.prisma.job.findMany();
+    return this.prisma.job.findMany({
+      include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true }
+    });
   }
 
   async findOne(id: number) {
     return this.prisma.job.findUnique({
       where: { id },
+      include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true }
     });
   }
 
@@ -28,6 +32,7 @@ export class JobService {
     return this.prisma.job.update({
       where: { id },
       data: updateJobDto,
+      include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true }
     });
   }
 

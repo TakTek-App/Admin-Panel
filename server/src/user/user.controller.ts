@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -31,5 +32,20 @@ export class UserController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(parseInt(id));
+  }
+
+  @Post('login')
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.userService.login(loginUserDto.email, loginUserDto.password);
+  }
+
+  @Post('create-call')
+  async createCall(@Body() { userId, technicianId }) {
+    return this.userService.createCall(userId, technicianId);
+  }
+
+  @Post('review')
+  async review(@Body() { technicianId, jobId, rating }) {
+    return this.userService.review(technicianId, jobId, rating);
   }
 }

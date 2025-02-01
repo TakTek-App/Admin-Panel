@@ -23,6 +23,11 @@ export class ServiceController {
     return this.serviceService.findOne(id);
   }
 
+  @Get('category/:categoryId')
+  async getServicesByCategory(@Param('categoryId') categoryId: string) {
+    return this.serviceService.findByCategoryId(parseInt(categoryId));
+  }
+
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,

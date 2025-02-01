@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Company } from '@prisma/client';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CompanyService {
@@ -10,11 +11,14 @@ export class CompanyService {
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     try {
-      const { services, ...companyData } = createCompanyDto;
+      const { password, services, ...companyData } = createCompanyDto;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       return this.prisma.company.create({
         data: {
           ...companyData,
+          password: hashedPassword,
           services: {
             connect: services.map((id) => ({ id })),
           },
@@ -35,7 +39,7 @@ export class CompanyService {
   async findOne(id: string): Promise<Company> {
     const company = await this.prisma.company.findUnique({
       where: { id },
-      include: { services: true, technicians: true },
+      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
     });
     if (!company) {
       throw new NotFoundException(`Company with ID ${id} not found`);
@@ -64,7 +68,7 @@ export class CompanyService {
           ...companyData,
           services: serviceUpdateData,
         },
-        include: { services: true },
+        include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
       });
     } catch (error) {
       throw new BadRequestException("Please verify your data and try again", error.message);
@@ -92,7 +96,7 @@ export class CompanyService {
           connect: { id: serviceId },
         },
       },
-      include: { services: true },
+      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
     });
   }
 
@@ -109,7 +113,25 @@ export class CompanyService {
           disconnect: { id: serviceId },
         },
       },
-      include: { services: true },
+      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
     });
+  }
+
+  async login(email: string, password: string): Promise<Company> {
+    const company = await this.prisma.company.findUnique({
+      where: { email },
+      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
+    });
+
+    if (!company) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, company.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return company;
   }
 }
