@@ -1,35 +1,94 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+//@ts-ignore
+//@ts-nocheck
+import "./App.css";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import PersistentDrawer from "./components/PersistentDrawer";
+import Users from "./pages/Users";
+import Services from "./pages/Services";
+import { Box } from "@mui/material";
+import EditUsers from "./pages/Edit/EditUsers";
+import CreateUser from "./pages/Create/CreateUser";
+import EditServices from "./pages/Edit/EditServices";
+import { ToastContainer } from "react-toastify";
+import CreateService from "./pages/Create/CreateService";
+import Companies from "./pages/Companies";
+import EditCompany from "./pages/Edit/EditCompany";
+import EditTechnician from "./pages/Edit/EditTechnician";
+import Login from "./pages/Login";
+import React, { useContext, useEffect, useState } from "react";
+import Categories from "./pages/Categories";
 
-function App() {
-  const [count, setCount] = useState(0)
+interface AuthContextProps {
+  signedIn: boolean;
+  setSignedIn: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export const AuthContext = React.createContext<AuthContextProps | null>(null);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth debe ser usado dentro de un AuthContext.Provider");
+  }
+  return context;
+};
+
+function App({ toggleTheme }: { toggleTheme: () => void }) {
+  const getInitialSignedIn = () => {
+    const savedState = localStorage.getItem("signedIn");
+    return savedState === "true";
+  };
+  const drawerWidth = 240;
+  const [signedIn, setSignedIn] = useState(getInitialSignedIn);
+
+  useEffect(() => {
+    localStorage.setItem("signedIn", signedIn.toString());
+  }, [signedIn]);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <AuthContext.Provider value={{ signedIn, setSignedIn }}>
+        {signedIn ? (
+          <Box>
+            <ToastContainer />
+            <PersistentDrawer toggleTheme={toggleTheme} />
+            <Box
+              sx={{
+                width: `calc(100% - ${drawerWidth}px)`,
+                margin: "auto",
+                minHeight: "100vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/create" element={<CreateUser />} />
+                <Route path="/users/:id" element={<EditUsers />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/services/create" element={<CreateService />} />
+                <Route path="/services/:id" element={<EditServices />} />
+                <Route path="/companies" element={<Companies />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route
+                  path="/companies/:companyId/technicians/:technicianId"
+                  element={<EditTechnician />}
+                />
+                <Route path="/companies/:id" element={<EditCompany />} />
+              </Routes>
+            </Box>
+          </Box>
+        ) : (
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        )}
+      </AuthContext.Provider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
