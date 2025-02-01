@@ -42,7 +42,7 @@ model Technician {
   lastName    String
   email       String    @unique
   password    String
-  photo       String?   @default("")
+  photo       String?   @default("https://firebasestorage.googleapis.com/v0/b/sds-main-29a46.firebasestorage.app/o/images%2FDefault_pfp.jpg?alt=media&token=ba6fbe28-95ea-4b5e-be33-c0a562ba85b3")
   companyId   String
   license     String?   @default("")
   licenseExpDate String?   @default("")
@@ -90,7 +90,7 @@ model User {
   email       String @unique
   phone       String @unique
   password    String
-  photo       String?    @default("")
+  photo       String?    @default("https://firebasestorage.googleapis.com/v0/b/sds-main-29a46.firebasestorage.app/o/images%2FDefault_pfp.jpg?alt=media&token=ba6fbe28-95ea-4b5e-be33-c0a562ba85b3")
   jobs        Job[]
   calls       Call[]
   reviews     UserReview[]

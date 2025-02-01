@@ -134,4 +134,53 @@ export class CompanyService {
 
     return company;
   }
+
+  async getCompanyTechnicians(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      include: { technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } }
+    });
+  
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${companyId} not found`);
+    }
+  
+    return company.technicians;
+  }
+
+  async getCompanyJobs(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      include: { 
+        technicians: {
+          include: { 
+            jobs: { include: { user: true, technician: true, service: true } }
+          }
+        }
+      },
+    });
+  
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${companyId} not found`);
+    }
+  
+    return company.technicians.flatMap(tech => tech.jobs);
+  }
+
+  async getCompanyCalls(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      include: { 
+        technicians: {
+          include: { calls: { include: { user: true, technician: true } } }
+        }
+      },
+    });
+  
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${companyId} not found`);
+    }
+  
+    return company.technicians.flatMap(tech => tech.calls);
+  }
 }
