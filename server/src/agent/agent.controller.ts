@@ -13,6 +13,7 @@ import {
   import { AgentService } from './agent.service';
   import { CreateAgentDto } from './dto/create-agent.dto';
   import { UpdateAgentDto } from './dto/update-agent.dto';
+import { LoginAgentDto } from './dto/login-agent.dto';
   
   @Controller('agents')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -46,6 +47,11 @@ import {
     @Delete(':id')
     async remove(@Param('id') id: string) {
       return this.agentService.remove(parseInt(id));
+    }
+
+    @Post('login')
+    async login(@Body() loginAgentDto: LoginAgentDto) {
+      return this.agentService.login(loginAgentDto.email, loginAgentDto.password);
     }
   }
   

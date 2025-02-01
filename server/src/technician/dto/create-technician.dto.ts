@@ -38,10 +38,6 @@ import {
     @IsOptional()
     @IsBoolean()
     verified?: boolean;
-  
-    @IsOptional()
-    @IsBoolean()
-    available?: boolean;
 
     @IsOptional()
     @IsString()

@@ -17,6 +17,7 @@ model Company {
   id          String       @id @default(uuid())
   name        String
   email       String    @unique
+  phone       String?   @unique @default("")
   password    String
   address     String
   city        String
@@ -43,7 +44,6 @@ model Technician {
   password    String
   photo       String?   @default("")
   companyId   String
-  available   Boolean?   @default(true)
   license     String?   @default("")
   licenseExpDate String?   @default("")
   reviews     TechnicianReview[]
@@ -59,7 +59,9 @@ model TechnicianReview {
   description     String?   @default("")
   rating          Float     @default(5.0)
   technicianId    Int
+  jobId           Int  @unique @default(1)
   technician      Technician @relation(fields: [technicianId], references: [id])
+  job             Job  @relation(fields: [jobId], references: [id])
 }
 
 model CompanyReview {
@@ -75,11 +77,14 @@ model UserReview {
   description     String?   @default("")
   rating          Float  @default(5.0)
   userId          Int
+  jobId           Int  @unique @default(1)
   user            User @relation(fields: [userId], references: [id])
+  job             Job  @relation(fields: [jobId], references: [id])
 }
 
 model User {
   id          Int    @id @default(autoincrement())
+  verified    Boolean @default(false)
   firstName   String
   lastName    String
   email       String @unique
@@ -126,6 +131,8 @@ model Job {
   user          User            @relation(fields: [userId], references: [id])
   technician    Technician      @relation(fields: [technicianId], references: [id])
   service       Service         @relation(fields: [serviceId], references: [id])
+  UserReview    UserReview?
+  TechnicianReview TechnicianReview?
 }
 
 model Agent {

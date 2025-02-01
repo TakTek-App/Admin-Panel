@@ -14,4 +14,8 @@ export class CreateTechnicianReviewDto {
   @IsInt()
   @IsNotEmpty()
   technicianId: number;
+
+  @IsInt()
+  @IsNotEmpty()
+  jobId: number;
 }
