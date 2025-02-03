@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JobService } from './job.service';
-import { JobController } from './Job.controller';
+import { JobController } from './job.controller';
 import { PrismaService } from 'prisma/prisma.service';
 
 @Module({
