@@ -42,7 +42,7 @@ export class TechnicianService {
             connect: services.map(id => ({ id })),
           },
         },
-        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
       });
     } catch (error) {
       throw new BadRequestException("Please verify your data and try again", error.message);
@@ -51,14 +51,14 @@ export class TechnicianService {
 
   async findAll(): Promise<Technician[]> {
     return this.prisma.technician.findMany({
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
     });
   }
 
   async findOne(id: number): Promise<Technician> {
     const technician = await this.prisma.technician.findUnique({
       where: { id },
-      include: { services: true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+      include: { services: true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
     });
     if (!technician) {
       throw new NotFoundException(`Technician with ID ${id} not found`);
@@ -71,7 +71,7 @@ export class TechnicianService {
       where: { services: {
         some: { id: serviceId }
       }},
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true,  UserReview: true, TechnicianReview: true } }, calls: true },
     });
   }
 
@@ -81,7 +81,7 @@ export class TechnicianService {
     
       const technician = await this.prisma.technician.findUnique({
         where: { id },
-        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
       });
     
       if (!technician) {
@@ -117,7 +117,7 @@ export class TechnicianService {
           ...technicianData,
           services: serviceUpdateData,
         },
-        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true,  UserReview: true, TechnicianReview: true }}, calls: true },
       });
     } catch (error) {
       throw new BadRequestException("Please verify your data and try again", error.message);
@@ -135,7 +135,7 @@ export class TechnicianService {
   async login(email: string, password: string): Promise<Technician> {
     const technician = await this.prisma.technician.findUnique({
       where: { email },
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
     });
 
     if (!technician) {
