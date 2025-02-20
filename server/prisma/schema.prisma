@@ -30,6 +30,9 @@ model Company {
   insuranceExpDate String?   @default("")
   license     String?   @default("")
   amountDue   Float?    @default(0.0)
+  customerId  String?   @default("")
+  lastPaymentDate String?  @default("")
+  lastChargedCalls Int? @default(0)
   services    Service[] @relation("CompanyServices")
   technicians Technician[]
   reviews     CompanyReview[]
