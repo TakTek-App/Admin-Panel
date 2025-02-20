@@ -18,10 +18,73 @@ export class MailService {
       from: "tech@taktek.app",
       subject: 'Verify Your TakTek Account',
       html: `
-        <h1>Verify Your Account</h1>
-        <p>Click the button below to verify your email and activate your account:</p>
-        <a href="${verificationLink}" style="background-color: #008CBA; padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px;">Verify My Account</a>
-        <p>If you didn’t request this, you can safely ignore this email.</p>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Verify Your Account</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 18px;
+                    color: #000;
+                    background-color: #fff !important;
+                    text-align: center;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 10px;
+                }
+                .header img {
+                    max-width: 100%;
+                    height: auto;
+                }
+                .divider {
+                    height: 2px;
+                    background-color: #000;
+                    margin: 20px 0;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 12px 18px;
+                    font-size: 16px;
+                    color: #fff;
+                    background-color: #1d71bf;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    text-align: center;
+                }
+                    .button-container {
+                    text-align: center;
+                    margin-top: 20px;
+                }
+                .footer {
+                    font-size: 14px;
+                    color: #666;
+                    margin-top: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="https://d375w6nzl58bw0.cloudfront.net/uploads/bccfe24e399eb7cc5e99b3fbf48dff5f6c12cf15d7fdf3a0b608c3f456b06f69.png" alt="Logo">
+                </div>
+                <div class="divider"></div>
+                <h1>Verify Your Account</h1>
+                <p>Click the button below to verify your email and activate your account:</p>
+                <div class="button-container">
+                    <a href="${verificationLink}" class="button">Verify My Account</a>
+                </div>
+                <p class="footer">If you didn’t request this, you can safely ignore this email.</p>
+            </div>
+        </body>
+        </html>
       `,
     };
 
