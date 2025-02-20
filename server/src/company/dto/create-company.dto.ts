@@ -70,6 +70,19 @@ import {
     @IsNumber()
     @Min(0)
     amountDue?: number;
+
+    @IsOptional()
+    @IsString()
+    customerId?: string;
+
+    @IsOptional()
+    @IsString()
+    lastPaymentDate?: string;
+
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    lastChargedCalls?: number;
   
     @IsArray()
     @ArrayNotEmpty()
