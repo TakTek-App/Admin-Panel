@@ -1,26 +1,31 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private mailService: MailService) {}
 
   // Register a new user
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Hash the password before saving it to the database
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    return this.prisma.user.create({
+    const newUser = await this.prisma.user.create({
       data: {
         ...createUserDto,
         password: hashedPassword,
       },
       include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
     });
+
+    await this.mailService.sendVerificationEmail(newUser.email, newUser.id);
+
+    return newUser;
   }
 
   // Find all users
@@ -145,5 +150,22 @@ export class UserService {
     });
   
     return { message: "Review added and rating updated", newRating };
+  }
+
+  async verifyUser(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+  
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    if (user.verified) {
+      throw new BadRequestException('User is already verified.');
+    }
+  
+    return this.prisma.user.update({
+      where: { id },
+      data: { verified: true },
+    });
   }
 }

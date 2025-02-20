@@ -12,10 +12,12 @@ import { UserReviewModule } from './user-review/user-review.module';
 import { AgentModule } from './agent/agent.module';
 import { CallModule } from './call/call.module';
 import { JobModule } from './job/job.module';
+import { MailService } from './mail/mail.service';
+import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [ServiceModule, UserModule, CompanyModule, TechnicianModule, CategoryModule, CompanyReviewModule, TechnicianReviewModule, UserReviewModule, AgentModule, CallModule, JobModule],
+  imports: [ServiceModule, UserModule, CompanyModule, TechnicianModule, CategoryModule, CompanyReviewModule, TechnicianReviewModule, UserReviewModule, AgentModule, CallModule, JobModule, MailModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailService],
 })
 export class AppModule {}
