@@ -20,7 +20,7 @@ export class UserService {
         ...createUserDto,
         password: hashedPassword,
       },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
+      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
     });
 
     await this.mailService.sendVerificationEmail(newUser.email, newUser.id);
@@ -31,7 +31,7 @@ export class UserService {
   // Find all users
   async findAll(): Promise<User[]> {
     return this.prisma.user.findMany({
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
+      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
     });
   }
 
@@ -39,7 +39,7 @@ export class UserService {
   async findOne(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
+      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
     });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -56,7 +56,7 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data: updateUserDto,
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
+      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
     });
   }
 
@@ -73,7 +73,7 @@ export class UserService {
   async login(email: string, password: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
+      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
     });
 
     if (!user) {
@@ -108,7 +108,7 @@ export class UserService {
 
     return this.prisma.user.findUnique({
       where: { id: userId },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true } } },
+      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
     });
   }
 
