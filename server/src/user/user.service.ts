@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -8,7 +13,10 @@ import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService, private mailService: MailService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   // Register a new user
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -20,7 +28,19 @@ export class UserService {
         ...createUserDto,
         password: hashedPassword,
       },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
+      include: {
+        reviews: true,
+        calls: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: { include: { company: true } },
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+      },
     });
 
     await this.mailService.sendVerificationEmail(newUser.email, newUser.id);
@@ -31,7 +51,19 @@ export class UserService {
   // Find all users
   async findAll(): Promise<User[]> {
     return this.prisma.user.findMany({
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
+      include: {
+        reviews: true,
+        calls: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: { include: { company: true } },
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+      },
     });
   }
 
@@ -39,7 +71,19 @@ export class UserService {
   async findOne(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
+      include: {
+        reviews: true,
+        calls: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: { include: { company: true } },
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+      },
     });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -56,7 +100,19 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data: updateUserDto,
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
+      include: {
+        reviews: true,
+        calls: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: { include: { company: true } },
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+      },
     });
   }
 
@@ -73,7 +129,19 @@ export class UserService {
   async login(email: string, password: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
+      include: {
+        reviews: true,
+        calls: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: { include: { company: true } },
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -94,9 +162,13 @@ export class UserService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    const technician = await this.prisma.technician.findUnique({ where: { id: technicianId } });
+    const technician = await this.prisma.technician.findUnique({
+      where: { id: technicianId },
+    });
     if (!technician) {
-      throw new NotFoundException(`Technician with ID ${technicianId} not found`);
+      throw new NotFoundException(
+        `Technician with ID ${technicianId} not found`,
+      );
     }
 
     await this.prisma.call.create({
@@ -108,14 +180,30 @@ export class UserService {
 
     return this.prisma.user.findUnique({
       where: { id: userId },
-      include: { reviews: true, calls: true, jobs: { include: { user: true, technician: { include: { company: true } }, service: true, UserReview: true, TechnicianReview: true } } },
+      include: {
+        reviews: true,
+        calls: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: { include: { company: true } },
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+      },
     });
   }
 
   async review(technicianId: number, jobId: number, rating: number) {
-    const technician = await this.prisma.technician.findUnique({ where: { id: technicianId } });
+    const technician = await this.prisma.technician.findUnique({
+      where: { id: technicianId },
+    });
     if (!technician) {
-      throw new NotFoundException(`Technician with ID ${technicianId} not found`);
+      throw new NotFoundException(
+        `Technician with ID ${technicianId} not found`,
+      );
     }
 
     const job = await this.prisma.job.findUnique({
@@ -142,19 +230,20 @@ export class UserService {
       where: { technicianId },
     });
 
-    const newRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+    const newRating =
+      reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
 
     await this.prisma.technician.update({
       where: { id: technicianId },
       data: { rating: newRating },
     });
-  
-    return { message: "Review added and rating updated", newRating };
+
+    return { message: 'Review added and rating updated', newRating };
   }
 
   async verifyUser(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
-  
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -162,7 +251,7 @@ export class UserService {
     if (user.verified) {
       throw new BadRequestException('User is already verified.');
     }
-  
+
     return this.prisma.user.update({
       where: { id },
       data: { verified: true },
