@@ -1,10 +1,20 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import * as jwt from 'jsonwebtoken';
 
 @Controller('users')
 export class UserController {
@@ -50,13 +60,17 @@ export class UserController {
     return this.userService.review(technicianId, jobId, rating);
   }
 
-  @Get(':id/verify')
-  async verifyUser(@Param('id') id: string, @Res() res: Response) {
+  @Patch(':token/verify')
+  async verifyUser(@Body('token') token: string, @Res() res: Response) {
     try {
-      await this.userService.verifyUser(Number(id));
-      return res.send(`<h2>Your account has been successfully verified! ✅</h2>`);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        userId: number;
+      };
+
+      await this.userService.verifyUser(decoded.userId);
+      return res.send(`Your account has been successfully verified! ✅`);
     } catch (error) {
-      return res.status(400).send(`<h2>Error: ${error.message}</h2>`);
+      return res.status(400).send(`Error: ${error.message}`);
     }
   }
 }
