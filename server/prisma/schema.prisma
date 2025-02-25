@@ -16,6 +16,7 @@ datasource db {
 model Company {
   id          String    @id @default(uuid())
   verified    Boolean?  @default(false)
+  agentsReceiveCalls Boolean? @default(false)
   name        String
   email       String    @unique
   phone       String?   @unique @default("")
