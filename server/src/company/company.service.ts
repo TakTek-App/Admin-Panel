@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Company } from '@prisma/client';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -26,20 +31,34 @@ export class CompanyService {
         include: { services: true },
       });
     } catch (error) {
-      throw new BadRequestException("Please verify your data and try again", error.message);
+      throw new BadRequestException(
+        'Please verify your data and try again',
+        error.message,
+      );
     }
   }
 
   async findAll(): Promise<Company[]> {
     return this.prisma.company.findMany({
-      include: { services: true, technicians: true },
+      include: { services: true, technicians: true, agents: true },
     });
   }
 
   async findOne(id: string): Promise<Company> {
     const company = await this.prisma.company.findUnique({
       where: { id },
-      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
+      include: {
+        services: true,
+        technicians: {
+          include: {
+            services: true,
+            reviews: true,
+            jobs: { include: { user: true, technician: true, service: true } },
+            calls: true,
+          },
+        },
+        agents: true,
+      },
     });
     if (!company) {
       throw new NotFoundException(`Company with ID ${id} not found`);
@@ -47,7 +66,10 @@ export class CompanyService {
     return company;
   }
 
-  async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
+  async update(
+    id: string,
+    updateCompanyDto: UpdateCompanyDto,
+  ): Promise<Company> {
     try {
       const { services, ...companyData } = updateCompanyDto;
 
@@ -57,10 +79,10 @@ export class CompanyService {
       }
 
       const serviceUpdateData = services
-      ? {
-          set: services.map((id) => ({ id })),
-        }
-      : undefined;
+        ? {
+            set: services.map((id) => ({ id })),
+          }
+        : undefined;
 
       return this.prisma.company.update({
         where: { id },
@@ -68,10 +90,26 @@ export class CompanyService {
           ...companyData,
           services: serviceUpdateData,
         },
-        include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
+        include: {
+          services: true,
+          technicians: {
+            include: {
+              services: true,
+              reviews: true,
+              jobs: {
+                include: { user: true, technician: true, service: true },
+              },
+              calls: true,
+            },
+          },
+          agents: true,
+        },
       });
     } catch (error) {
-      throw new BadRequestException("Please verify your data and try again", error.message);
+      throw new BadRequestException(
+        'Please verify your data and try again',
+        error.message,
+      );
     }
   }
 
@@ -83,8 +121,13 @@ export class CompanyService {
     return this.prisma.company.delete({ where: { id } });
   }
 
-  async addServiceToCompany(companyId: string, serviceId: number): Promise<Company> {
-    const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+  async addServiceToCompany(
+    companyId: string,
+    serviceId: number,
+  ): Promise<Company> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
     if (!company) {
       throw new NotFoundException(`Company with ID ${companyId} not found`);
     }
@@ -96,12 +139,28 @@ export class CompanyService {
           connect: { id: serviceId },
         },
       },
-      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
+      include: {
+        services: true,
+        technicians: {
+          include: {
+            services: true,
+            reviews: true,
+            jobs: { include: { user: true, technician: true, service: true } },
+            calls: true,
+          },
+        },
+        agents: true,
+      },
     });
   }
 
-  async removeServiceFromCompany(companyId: string, serviceId: number): Promise<Company> {
-    const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+  async removeServiceFromCompany(
+    companyId: string,
+    serviceId: number,
+  ): Promise<Company> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
     if (!company) {
       throw new NotFoundException(`Company with ID ${companyId} not found`);
     }
@@ -113,14 +172,36 @@ export class CompanyService {
           disconnect: { id: serviceId },
         },
       },
-      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
+      include: {
+        services: true,
+        technicians: {
+          include: {
+            services: true,
+            reviews: true,
+            jobs: { include: { user: true, technician: true, service: true } },
+            calls: true,
+          },
+        },
+        agents: true,
+      },
     });
   }
 
   async login(email: string, password: string): Promise<Company> {
     const company = await this.prisma.company.findUnique({
       where: { email },
-      include: { services: true, technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } },
+      include: {
+        services: true,
+        technicians: {
+          include: {
+            services: true,
+            reviews: true,
+            jobs: { include: { user: true, technician: true, service: true } },
+            calls: true,
+          },
+        },
+        agents: true,
+      },
     });
 
     if (!company) {
@@ -138,49 +219,58 @@ export class CompanyService {
   async getCompanyTechnicians(companyId: string) {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
-      include: { technicians: { include: { services:true, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true } } }
+      include: {
+        technicians: {
+          include: {
+            services: true,
+            reviews: true,
+            jobs: { include: { user: true, technician: true, service: true } },
+            calls: true,
+          },
+        },
+      },
     });
-  
+
     if (!company) {
       throw new NotFoundException(`Company with ID ${companyId} not found`);
     }
-  
+
     return company.technicians;
   }
 
   async getCompanyJobs(companyId: string) {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
-      include: { 
+      include: {
         technicians: {
-          include: { 
-            jobs: { include: { user: true, technician: true, service: true } }
-          }
-        }
+          include: {
+            jobs: { include: { user: true, technician: true, service: true } },
+          },
+        },
       },
     });
-  
+
     if (!company) {
       throw new NotFoundException(`Company with ID ${companyId} not found`);
     }
-  
-    return company.technicians.flatMap(tech => tech.jobs);
+
+    return company.technicians.flatMap((tech) => tech.jobs);
   }
 
   async getCompanyCalls(companyId: string) {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
-      include: { 
+      include: {
         technicians: {
-          include: { calls: { include: { user: true, technician: true } } }
-        }
+          include: { calls: { include: { user: true, technician: true } } },
+        },
       },
     });
-  
+
     if (!company) {
       throw new NotFoundException(`Company with ID ${companyId} not found`);
     }
-  
-    return company.technicians.flatMap(tech => tech.calls);
+
+    return company.technicians.flatMap((tech) => tech.calls);
   }
 }
