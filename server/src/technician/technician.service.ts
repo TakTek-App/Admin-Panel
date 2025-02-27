@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Technician } from '@prisma/client';
 import { CreateTechnicianDto } from './dto/create-technician.dto';
@@ -11,54 +16,102 @@ export class TechnicianService {
 
   async create(createTechnicianDto: CreateTechnicianDto): Promise<Technician> {
     try {
-      const { companyId, password, services, ...technicianData } = createTechnicianDto;
+      const { companyId, password, services, ...technicianData } =
+        createTechnicianDto;
 
       const company = await this.prisma.company.findUnique({
         where: { id: companyId },
         include: { services: true },
       });
-    
+
       if (!company) {
         throw new NotFoundException(`Company with ID ${companyId} not found`);
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-    
-      const validServiceIds = company.services.map(service => service.id);
-      const invalidServiceIds = services.filter(id => !validServiceIds.includes(id));
-    
+
+      const validServiceIds = company.services.map((service) => service.id);
+      const invalidServiceIds = services.filter(
+        (id) => !validServiceIds.includes(id),
+      );
+
       if (invalidServiceIds.length > 0) {
         throw new BadRequestException(
           `These services do not belong to the company: ${invalidServiceIds.join(', ')}`,
         );
       }
-    
+
       return this.prisma.technician.create({
         data: {
           ...technicianData,
           password: hashedPassword,
           company: { connect: { id: companyId } },
           services: {
-            connect: services.map(id => ({ id })),
+            connect: services.map((id) => ({ id })),
           },
         },
-        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
+        include: {
+          services: true,
+          company: { include: { services: true } },
+          reviews: true,
+          jobs: {
+            include: {
+              user: true,
+              technician: true,
+              service: true,
+              UserReview: true,
+              TechnicianReview: true,
+            },
+          },
+          calls: true,
+        },
       });
     } catch (error) {
-      throw new BadRequestException("Please verify your data and try again", error.message);
+      throw new BadRequestException(
+        'Please verify your data and try again',
+        error.message,
+      );
     }
   }
 
   async findAll(): Promise<Technician[]> {
     return this.prisma.technician.findMany({
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
+      include: {
+        services: true,
+        company: { include: { services: true } },
+        reviews: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: true,
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+        calls: true,
+      },
     });
   }
 
   async findOne(id: number): Promise<Technician> {
     const technician = await this.prisma.technician.findUnique({
       where: { id },
-      include: { services: true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
+      include: {
+        services: true,
+        company: { include: { services: true } },
+        reviews: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: true,
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+        calls: true,
+      },
     });
     if (!technician) {
       throw new NotFoundException(`Technician with ID ${id} not found`);
@@ -68,48 +121,85 @@ export class TechnicianService {
 
   async findByService(serviceId: number): Promise<Technician[]> {
     return this.prisma.technician.findMany({
-      where: { services: {
-        some: { id: serviceId }
-      }},
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true,  UserReview: true, TechnicianReview: true } }, calls: true },
+      where: {
+        services: {
+          some: { id: serviceId },
+        },
+      },
+      include: {
+        services: true,
+        company: { include: { services: true } },
+        reviews: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: true,
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+        calls: true,
+      },
     });
   }
 
-  async update(id: number, updateTechnicianDto: UpdateTechnicianDto): Promise<Technician> {
-    try{
+  async update(
+    id: number,
+    updateTechnicianDto: UpdateTechnicianDto,
+  ): Promise<Technician> {
+    try {
       const { services, ...technicianData } = updateTechnicianDto;
-    
+
       const technician = await this.prisma.technician.findUnique({
         where: { id },
-        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
+        include: {
+          services: true,
+          company: { include: { services: true } },
+          reviews: true,
+          jobs: {
+            include: {
+              user: true,
+              technician: true,
+              service: true,
+              UserReview: true,
+              TechnicianReview: true,
+            },
+          },
+          calls: true,
+        },
       });
-    
+
       if (!technician) {
         throw new NotFoundException(`Technician with ID ${id} not found`);
       }
-    
+
       const { company } = technician;
-    
+
       if (!company) {
-        throw new NotFoundException(`Technician with ID ${id} is not associated with a company`);
+        throw new NotFoundException(
+          `Technician with ID ${id} is not associated with a company`,
+        );
       }
-    
+
       if (services) {
         const validServiceIds = company.services.map((service) => service.id);
-        const invalidServiceIds = services.filter((id) => !validServiceIds.includes(id));
-    
+        const invalidServiceIds = services.filter(
+          (id) => !validServiceIds.includes(id),
+        );
+
         if (invalidServiceIds.length > 0) {
           throw new Error(
-            `The following service IDs are invalid for this company: ${invalidServiceIds.join(", ")}`
+            `The following service IDs are invalid for this company: ${invalidServiceIds.join(', ')}`,
           );
         }
       }
 
       const serviceUpdateData = services
-      ? {
-        set: services.map((id) => ({ id })),
-      }
-      : undefined;
+        ? {
+            set: services.map((id) => ({ id })),
+          }
+        : undefined;
 
       return this.prisma.technician.update({
         where: { id },
@@ -117,15 +207,34 @@ export class TechnicianService {
           ...technicianData,
           services: serviceUpdateData,
         },
-        include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true,  UserReview: true, TechnicianReview: true }}, calls: true },
+        include: {
+          services: true,
+          company: { include: { services: true } },
+          reviews: true,
+          jobs: {
+            include: {
+              user: true,
+              technician: true,
+              service: true,
+              UserReview: true,
+              TechnicianReview: true,
+            },
+          },
+          calls: true,
+        },
       });
     } catch (error) {
-      throw new BadRequestException("Please verify your data and try again", error.message);
+      throw new BadRequestException(
+        'Please verify your data and try again',
+        error.message,
+      );
     }
   }
 
   async remove(id: number): Promise<Technician> {
-    const technician = await this.prisma.technician.findUnique({ where: { id } });
+    const technician = await this.prisma.technician.findUnique({
+      where: { id },
+    });
     if (!technician) {
       throw new NotFoundException(`Technician with ID ${id} not found`);
     }
@@ -135,7 +244,21 @@ export class TechnicianService {
   async login(email: string, password: string): Promise<Technician> {
     const technician = await this.prisma.technician.findUnique({
       where: { email },
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true, UserReview: true, TechnicianReview: true } }, calls: true },
+      include: {
+        services: true,
+        company: { include: { services: true } },
+        reviews: true,
+        jobs: {
+          include: {
+            user: true,
+            technician: true,
+            service: true,
+            UserReview: true,
+            TechnicianReview: true,
+          },
+        },
+        calls: true,
+      },
     });
 
     if (!technician) {
@@ -155,20 +278,22 @@ export class TechnicianService {
     const technician = await this.prisma.technician.findUnique({
       where: { id: technicianId },
     });
-  
+
     if (!technician) {
-      throw new NotFoundException(`Technician with ID ${technicianId} not found`);
+      throw new NotFoundException(
+        `Technician with ID ${technicianId} not found`,
+      );
     }
-  
+
     // Ensure the user exists
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
-  
+
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-  
+
     // Create a new job entry
     await this.prisma.job.create({
       data: {
@@ -185,14 +310,24 @@ export class TechnicianService {
 
     return this.prisma.technician.findUnique({
       where: { id: technicianId },
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+      include: {
+        services: true,
+        company: { include: { services: true } },
+        reviews: true,
+        jobs: { include: { user: true, technician: true, service: true } },
+        calls: true,
+      },
     });
   }
 
   async createCall(technicianId: number, userId: number) {
-    const technician = await this.prisma.technician.findUnique({ where: { id: technicianId } });
+    const technician = await this.prisma.technician.findUnique({
+      where: { id: technicianId },
+    });
     if (!technician) {
-      throw new NotFoundException(`Technician with ID ${technicianId} not found`);
+      throw new NotFoundException(
+        `Technician with ID ${technicianId} not found`,
+      );
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -209,7 +344,13 @@ export class TechnicianService {
 
     return this.prisma.technician.findUnique({
       where: { id: technicianId },
-      include: { services:true, company: { include: { services: true }}, reviews: true, jobs: { include: { user: true, technician: true, service: true } }, calls: true },
+      include: {
+        services: true,
+        company: { include: { services: true } },
+        reviews: true,
+        jobs: { include: { user: true, technician: true, service: true } },
+        calls: true,
+      },
     });
   }
 
@@ -238,5 +379,42 @@ export class TechnicianService {
         rating,
       },
     });
+  }
+
+  async changePassword(
+    technicianId: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    // Find the technician
+    const technician = await this.prisma.technician.findUnique({
+      where: { id: technicianId },
+    });
+
+    if (!technician) {
+      throw new NotFoundException(
+        `Technician with ID ${technicianId} not found`,
+      );
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      technician.password,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the password in the database
+    await this.prisma.technician.update({
+      where: { id: technicianId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+} from '@nestjs/common';
 import { TechnicianService } from './technician.service';
 import { Technician } from '@prisma/client';
 import { CreateTechnicianDto } from './dto/create-technician.dto';
@@ -48,12 +56,21 @@ export class TechnicianController {
 
   @Post('login')
   async login(@Body() loginTechnicianDto: LoginTechnicianDto) {
-    return this.technicianService.login(loginTechnicianDto.email, loginTechnicianDto.password);
+    return this.technicianService.login(
+      loginTechnicianDto.email,
+      loginTechnicianDto.password,
+    );
   }
 
   @Post('accept-job')
-  async acceptJob(@Body() body: { technicianId: number; userId: number; serviceId: number }) {
-    return this.technicianService.acceptJob(body.technicianId, body.userId, body.serviceId);
+  async acceptJob(
+    @Body() body: { technicianId: number; userId: number; serviceId: number },
+  ) {
+    return this.technicianService.acceptJob(
+      body.technicianId,
+      body.userId,
+      body.serviceId,
+    );
   }
 
   @Post('create-call')
@@ -64,5 +81,18 @@ export class TechnicianController {
   @Post('review')
   async review(@Body() { userId, jobId, rating }) {
     return this.technicianService.review(userId, jobId, rating);
+  }
+
+  @Patch(':id/change-password')
+  async changePassword(
+    @Param('id') id: string,
+    @Body('currentPassword') currentPassword: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.technicianService.changePassword(
+      Number(id),
+      currentPassword,
+      newPassword,
+    );
   }
 }
