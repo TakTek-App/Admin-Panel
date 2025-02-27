@@ -18,9 +18,7 @@ export class UserService {
     private mailService: MailService,
   ) {}
 
-  // Register a new user
   async create(createUserDto: CreateUserDto): Promise<User> {
-    // Hash the password before saving it to the database
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const newUser = await this.prisma.user.create({
@@ -289,5 +287,40 @@ export class UserService {
     });
 
     return { message: 'Password changed successfully' };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.mailService.sendForgotPasswordEmail(email, user.id, 'user');
+
+    return { message: 'Password reset email sent. Check your inbox.' };
+  }
+
+  async resetPassword(userId: number, role: string, newPassword: string) {
+    if (role !== 'user') {
+      throw new UnauthorizedException('Invalid token for user');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password successfully reset. You can now log in.' };
   }
 }

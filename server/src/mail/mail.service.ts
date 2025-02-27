@@ -18,7 +18,7 @@ export class MailService {
   async sendVerificationEmail(to: string, userId: number) {
     const token = this.generateVerificationToken(userId);
     // const verificationLink = `${process.env.VERIFICATION_URL}/${userId}/verify`;
-    const verificationLink = `${process.env.VERIFICATION_URL}?token=${token}`;
+    const verificationLink = `${process.env.WEB_URL}/verify?token=${token}`;
 
     const msg = {
       to,
@@ -100,6 +100,83 @@ export class MailService {
       console.log(`Verification email sent to ${to}`);
     } catch (error) {
       console.error('Error sending email:', error.response?.body || error);
+    }
+  }
+
+  async sendForgotPasswordEmail(
+    to: string,
+    id: number,
+    role: 'user' | 'technician',
+  ) {
+    const token = jwt.sign({ id, role }, process.env.JWT_SECRET, {
+      expiresIn: '15m',
+    });
+    const resetLink = `${process.env.WEB_URL}/forgot-password?token=${token}`;
+
+    const msg = {
+      to,
+      from: 'tech@taktek.app',
+      subject: 'Reset Your Password - TakTek',
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Reset Your Password</title>
+          <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 18px;
+                color: #000;
+                background-color: #fff !important;
+                text-align: center;
+                padding: 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+            }
+            .button {
+                display: inline-block;
+                padding: 12px 18px;
+                font-size: 16px;
+                color: #fff !important;
+                background-color: #e63946;
+                border-radius: 6px;
+                text-decoration: none;
+                text-align: center;
+            }
+            .footer {
+                font-size: 14px;
+                color: #666;
+                margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Reset Your Password</h1>
+            <p>Click the button below to reset your password:</p>
+            <a href="${resetLink}" class="button">Reset My Password</a>
+            <p class="footer">If you didn’t request this, you can safely ignore this email.</p>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    try {
+      await sgMail.send(msg);
+      console.log(`Password reset email sent to ${to}`);
+    } catch (error) {
+      console.error(
+        'Error sending password reset email:',
+        error.response?.body || error,
+      );
     }
   }
 }
