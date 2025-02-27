@@ -9,10 +9,14 @@ import { Technician } from '@prisma/client';
 import { CreateTechnicianDto } from './dto/create-technician.dto';
 import { UpdateTechnicianDto } from './dto/update-technician.dto';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class TechnicianService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   async create(createTechnicianDto: CreateTechnicianDto): Promise<Technician> {
     try {
@@ -416,5 +420,46 @@ export class TechnicianService {
     });
 
     return { message: 'Password changed successfully' };
+  }
+
+  async forgotPassword(email: string) {
+    const technician = await this.prisma.technician.findUnique({
+      where: { email },
+    });
+
+    if (!technician) {
+      throw new NotFoundException('Technician not found');
+    }
+
+    await this.mailService.sendForgotPasswordEmail(
+      email,
+      technician.id,
+      'technician',
+    );
+
+    return { message: 'Password reset email sent. Check your inbox.' };
+  }
+
+  async resetPassword(technicianId: number, role: string, newPassword: string) {
+    if (role !== 'technician') {
+      throw new UnauthorizedException('Invalid token for technician');
+    }
+
+    const technician = await this.prisma.technician.findUnique({
+      where: { id: technicianId },
+    });
+
+    if (!technician) {
+      throw new NotFoundException('Technician not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.technician.update({
+      where: { id: technicianId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Password successfully reset. You can now log in.' };
   }
 }

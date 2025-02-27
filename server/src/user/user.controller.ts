@@ -86,4 +86,32 @@ export class UserController {
       newPassword,
     );
   }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    return this.userService.forgotPassword(email);
+  }
+
+  @Patch(':token/reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('newPassword') newPassword: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+        id: number;
+        role: string;
+      };
+
+      await this.userService.resetPassword(
+        decoded.id,
+        decoded.role,
+        newPassword,
+      );
+      return res.send(`Your password has been reset successfully! ✅`);
+    } catch (error) {
+      return res.status(400).send(`Error: ${error.message}`);
+    }
+  }
 }
