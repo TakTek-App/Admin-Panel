@@ -73,4 +73,17 @@ export class UserController {
       return res.status(400).send(`Error: ${error.message}`);
     }
   }
+
+  @Patch(':id/change-password')
+  async changePassword(
+    @Param('id') id: string,
+    @Body('currentPassword') currentPassword: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.userService.changePassword(
+      Number(id),
+      currentPassword,
+      newPassword,
+    );
+  }
 }
