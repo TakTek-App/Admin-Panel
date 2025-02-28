@@ -8,6 +8,7 @@ import {
   Body,
   BadRequestException,
   UnauthorizedException,
+  Res,
 } from '@nestjs/common';
 import { TechnicianService } from './technician.service';
 import { Technician } from '@prisma/client';
@@ -15,6 +16,7 @@ import { CreateTechnicianDto } from './dto/create-technician.dto';
 import { UpdateTechnicianDto } from './dto/update-technician.dto';
 import { LoginTechnicianDto } from './dto/login-technician.dto';
 import * as jwt from 'jsonwebtoken';
+import { Response } from 'express';
 
 @Controller('technicians')
 export class TechnicianController {
@@ -104,13 +106,13 @@ export class TechnicianController {
     return this.technicianService.forgotPassword(email);
   }
 
-  @Patch('reset-password')
+  @Patch(':token/reset-password')
   async resetPassword(
     @Body('token') token: string,
     @Body('newPassword') newPassword: string,
+    @Res() res: Response,
   ) {
     try {
-      // Decode token
       const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
         id: number;
         role: string;
@@ -120,13 +122,14 @@ export class TechnicianController {
         throw new UnauthorizedException('Invalid token');
       }
 
-      return this.technicianService.resetPassword(
+      await this.technicianService.resetPassword(
         decoded.id,
         decoded.role,
         newPassword,
       );
+      return res.send(`Your password has been reset successfully! ✅`);
     } catch (error) {
-      throw new BadRequestException('Invalid or expired reset token.');
+      return res.status(400).send(`Error: ${error.message}`);
     }
   }
 }

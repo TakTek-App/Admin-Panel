@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from './user.service';
@@ -103,6 +104,10 @@ export class UserController {
         id: number;
         role: string;
       };
+
+      if (!decoded.id || !decoded.role) {
+        throw new UnauthorizedException('Invalid token');
+      }
 
       await this.userService.resetPassword(
         decoded.id,
